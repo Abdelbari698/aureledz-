@@ -383,9 +383,41 @@ function loadOrders() {
   if (!SHEETS_URL) return;
   const btn = document.getElementById('btn-refresh');
   btn.classList.add('spin');
-  fetch(SHEETS_URL + '?action=getOrders', {mode:'no-cors'})
-    .then(() => { btn.classList.remove('spin'); toast('✓ Données actualisées'); })
-    .catch(() => { btn.classList.remove('spin'); toast('⚠ Connexion en cours...'); });
+ 
+  /* Proxy CORS gratuit pour contourner les restrictions navigateur */
+  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(SHEETS_URL + '?action=getOrders');
+ 
+  fetch(proxyUrl)
+    .then(r => r.json())
+    .then(proxy => {
+      const data = JSON.parse(proxy.contents);
+      btn.classList.remove('spin');
+      if (data.status === 'ok' && data.orders && data.orders.length > 0) {
+        let added = 0;
+        data.orders.forEach(o => {
+          if (!o.ref) return;
+          const existing = orders.find(x => x.ref === o.ref);
+          if (!existing) {
+            o.id = Date.now() + Math.random();
+            o.statut = o.statut || '⏳ En attente';
+            orders.unshift(o);
+            added++;
+          } else if (o.statut && o.statut !== existing.statut) {
+            existing.statut = o.statut;
+          }
+        });
+        saveOrders();
+        renderTable();
+        updateStats();
+        toast('✓ ' + data.orders.length + ' commande(s) chargée(s)' + (added > 0 ? ' — ' + added + ' nouvelle(s)' : ''));
+      } else {
+        toast('✓ Actualisé — aucune commande dans le Sheet');
+      }
+    })
+    .catch(err => {
+      btn.classList.remove('spin');
+      toast('⚠ Erreur: ' + err.message);
+    });
 }
  
 // Recevoir une commande depuis le site AURELE
