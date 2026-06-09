@@ -319,7 +319,9 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 // ══════════════════════════════════════════
 const PWD = 'aurele2025';
 let SHEETS_URL = localStorage.getItem('aurele_sheets_url') || 'https://script.google.com/macros/s/AKfycbw4LILKKdIN-2sYI8-K2PTD4UnbiZ5GfdMFLc16H6HLZukdOykp7iNb1fLQA11FkRoV/exec';
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsNlcoAPn9dNJDlcXB0g4EmlYruW07enyMYjAchvC5SOqy4ZJ6XLCzzhVnodjUSFivG9c89ikwQAza/pub?gid=0&single=true&output=csv';
+const SHEET_ID = '1QFHB2uHAF4bSljKvrkLip2pgnGVKygH-pYZwM2cvSIw';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/1QFHB2uHAF4bSljKvrkLip2pgnGVKygH-pYZwM2cvSIw/gviz/tq?tqx=out:csv&gid=0`;
+const GVIZ_URL = `https://docs.google.com/spreadsheets/d/1QFHB2uHAF4bSljKvrkLip2pgnGVKygH-pYZwM2cvSIw/gviz/tq?tqx=out:json&gid=0`;
 let WA_NUM = localStorage.getItem('aurele_wa_num') || '213XXXXXXXXX';
 let orders = JSON.parse(localStorage.getItem('aurele_orders') || '[]');
 let currentOrder = null;
@@ -387,38 +389,44 @@ function loadOrders() {
   const btn = document.getElementById('btn-refresh');
   btn.classList.add('spin');
  
-  fetch(CSV_URL)
-    .then(r => {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    })
-    .then(csv => {
-      btn.classList.remove('spin');
-      const rows = parseCSV(csv);
-      if (rows.length < 2) { toast('⚠ Sheet vide ou inaccessible'); return; }
-      const headers = rows[0].map(h => h.trim());
+  /* Méthode 1: Google Visualization API (JSON) */
+  fetch(GVIZ_URL)
+    .then(r => r.text())
+    .then(raw => {
+      /* Google retourne /*O_o*/
+google.visualization.Query... — extraire le JSON */
+      const jsonStr = raw.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+      if (!jsonStr) throw new Error('Format GVIZ invalide');
+      const gviz = JSON.parse(jsonStr[1]);
+      const table = gviz.table;
+      if (!table || !table.rows || table.rows.length === 0) {
+        btn.classList.remove('spin');
+        toast('⚠ Sheet vide');
+        return;
+      }
+      const cols = table.cols.map(col => col.label);
       let added = 0;
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        if (!row.length || !row[0]) continue;
+      table.rows.forEach(row => {
         const o = {};
-        headers.forEach((h,j) => o[h] = (row[j]||'').trim());
-        /* Chercher la colonne Référence avec différentes variantes */
-        const ref = o['Référence']||o['Reference']||o['RÃ©fÃ©rence']||row[0]||'';
-        if (!ref || ref === 'Référence') continue;
+        cols.forEach((h,j) => {
+          const cell = row.c[j];
+          o[h] = cell && cell.v !== null && cell.v !== undefined ? String(cell.v) : '';
+        });
+        const ref = o['Référence']||o['Reference']||'';
+        if (!ref || ref === 'Référence') return;
         const order = {
           ref, id: Date.now() + Math.random(),
-          date:  o['Date']||'',
+          date: o['Date']||'',
           produit: o['Produit']||'',
           produit_ar: o['Produit AR']||'',
-          prix_produit: Number(o['Prix Produit']||o['Prix']||0),
-          frais_livraison: Number(o['Frais Livraison']||o['Frais']||0),
+          prix_produit: Number(o['Prix Produit']||0),
+          frais_livraison: Number(o['Frais Livraison']||0),
           total: Number(o['Total DZD']||o['Total']||0),
-          nom: o['Nom Client']||o['Nom']||'',
-          telephone: o['Téléphone']||o['Telephone']||o['Tel']||'',
+          nom: o['Nom Client']||'',
+          telephone: o['Téléphone']||o['Telephone']||'',
           wilaya: o['Wilaya']||'',
           adresse: o['Adresse']||'',
-          mode_livraison: o['Mode Livraison']||o['Livraison']||'',
+          mode_livraison: o['Mode Livraison']||'',
           message: o['Message']||'',
           collection: o['Collection']||'',
           categorie: o['Catégorie']||o['Categorie']||'',
@@ -429,15 +437,62 @@ function loadOrders() {
         else if (order.statut && order.statut !== existing.statut) {
           existing.statut = order.statut;
         }
-      }
+      });
       saveOrders(); renderTable(); updateStats();
-      toast('✓ ' + (rows.length-1) + ' ligne(s) — ' + added + ' nouvelle(s) commande(s)');
-    })
-    .catch(err => {
       btn.classList.remove('spin');
-      toast('⚠ ' + err.message);
+      toast('✓ ' + table.rows.length + ' commande(s) — ' + added + ' nouvelle(s)');
+    })
+    .catch(() => {
+      /* Méthode 2: CSV direct */
+      fetch(CSV_URL)
+        .then(r => r.text())
+        .then(csv => {
+          btn.classList.remove('spin');
+          const rows = parseCSV(csv);
+          if (rows.length < 2) { toast('⚠ Sheet vide'); return; }
+          const headers = rows[0].map(h => h.trim());
+          let added = 0;
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row[0]) continue;
+            const o = {};
+            headers.forEach((h,j) => o[h] = (row[j]||'').trim());
+            const ref = o['Référence']||o['Reference']||row[0]||'';
+            if (!ref || ref === 'Référence') continue;
+            const order = {
+              ref, id: Date.now() + Math.random(),
+              date: o['Date']||'',
+              produit: o['Produit']||'',
+              produit_ar: o['Produit AR']||'',
+              prix_produit: Number(o['Prix Produit']||0),
+              frais_livraison: Number(o['Frais Livraison']||0),
+              total: Number(o['Total DZD']||o['Total']||0),
+              nom: o['Nom Client']||'',
+              telephone: o['Téléphone']||o['Telephone']||'',
+              wilaya: o['Wilaya']||'',
+              adresse: o['Adresse']||'',
+              mode_livraison: o['Mode Livraison']||'',
+              message: o['Message']||'',
+              collection: o['Collection']||'',
+              categorie: o['Catégorie']||o['Categorie']||'',
+              statut: o['Statut']||'⏳ En attente'
+            };
+            const existing = orders.find(x => x.ref === order.ref);
+            if (!existing) { orders.unshift(order); added++; }
+            else if (order.statut && order.statut !== existing.statut) {
+              existing.statut = order.statut;
+            }
+          }
+          saveOrders(); renderTable(); updateStats();
+          toast('✓ ' + (rows.length-1) + ' commande(s) — ' + added + ' nouvelle(s)');
+        })
+        .catch(err => {
+          btn.classList.remove('spin');
+          toast('⚠ Impossible de charger le Sheet: ' + err.message);
+        });
     });
 }
+ 
  
 /* Parseur CSV correct (RFC 4180) — gère les virgules dans les champs */
 function parseCSV(text) {
