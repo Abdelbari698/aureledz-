@@ -319,6 +319,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 // ══════════════════════════════════════════
 const PWD = 'aurele2025';
 let SHEETS_URL = localStorage.getItem('aurele_sheets_url') || 'https://script.google.com/macros/s/AKfycbw4LILKKdIN-2sYI8-K2PTD4UnbiZ5GfdMFLc16H6HLZukdOykp7iNb1fLQA11FkRoV/exec';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSsNlcoAPn9dNJDlcXB0g4EmlYruW07enyMYjAchvC5SOqy4ZJ6XLCzzhVnodjUSFivG9c89ikwQAza/pub?gid=0&single=true&output=csv';
 let WA_NUM = localStorage.getItem('aurele_wa_num') || '213XXXXXXXXX';
 let orders = JSON.parse(localStorage.getItem('aurele_orders') || '[]');
 let currentOrder = null;
@@ -364,7 +365,10 @@ function init() {
   }
   renderTable();
   updateStats();
-  setInterval(() => { if (SHEETS_URL) loadOrders(); }, 60000);
+  /* Charger les commandes du Sheet au démarrage */
+  if (SHEETS_URL) setTimeout(loadOrders, 1000);
+  /* Puis toutes les 2 minutes */
+  setInterval(() => { if (SHEETS_URL) loadOrders(); }, 120000);
 }
  
 function saveConfig() {
@@ -380,44 +384,83 @@ function saveConfig() {
 // LOAD FROM GOOGLE SHEETS
 // ══════════════════════════════════════════
 function loadOrders() {
-  if (!SHEETS_URL) return;
+  if (!CSV_URL && !SHEETS_URL) return;
   const btn = document.getElementById('btn-refresh');
   btn.classList.add('spin');
  
-  /* Proxy CORS gratuit pour contourner les restrictions navigateur */
-  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(SHEETS_URL + '?action=getOrders');
- 
-  fetch(proxyUrl)
-    .then(r => r.json())
-    .then(proxy => {
-      const data = JSON.parse(proxy.contents);
+  /* Lire le CSV public directement — pas besoin de proxy */
+  fetch(CSV_URL)
+    .then(r => r.text())
+    .then(csv => {
       btn.classList.remove('spin');
-      if (data.status === 'ok' && data.orders && data.orders.length > 0) {
-        let added = 0;
-        data.orders.forEach(o => {
-          if (!o.ref) return;
-          const existing = orders.find(x => x.ref === o.ref);
-          if (!existing) {
-            o.id = Date.now() + Math.random();
-            o.statut = o.statut || '⏳ En attente';
-            orders.unshift(o);
-            added++;
-          } else if (o.statut && o.statut !== existing.statut) {
-            existing.statut = o.statut;
-          }
-        });
-        saveOrders();
-        renderTable();
-        updateStats();
-        toast('✓ ' + data.orders.length + ' commande(s) chargée(s)' + (added > 0 ? ' — ' + added + ' nouvelle(s)' : ''));
-      } else {
-        toast('✓ Actualisé — aucune commande dans le Sheet');
+      const rows = csv.split('\n').map(r => r.split(',').map(v => v.replace(/^"|"$/g,'').trim()));
+      if (rows.length < 2) { toast('Sheet vide'); return; }
+      const headers = rows[0];
+      let added = 0;
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row[0]) continue;
+        const o = {};
+        headers.forEach((h,j) => o[h] = row[j] || '');
+        const order = {
+          ref:   o['Référence']||o['Reference']||'',
+          date:  o['Date']||'',
+          produit: o['Produit']||'',
+          produit_ar: o['Produit AR']||'',
+          prix_produit: Number(o['Prix Produit']||0),
+          frais_livraison: Number(o['Frais Livraison']||0),
+          total: Number(o['Total DZD']||o['Total']||0),
+          nom: o['Nom Client']||'',
+          telephone: o['Téléphone']||o['Telephone']||'',
+          wilaya: o['Wilaya']||'',
+          adresse: o['Adresse']||'',
+          mode_livraison: o['Mode Livraison']||'',
+          message: o['Message']||'',
+          collection: o['Collection']||'',
+          categorie: o['Catégorie']||o['Categorie']||'',
+          statut: o['Statut']||'⏳ En attente',
+          id: Date.now() + Math.random()
+        };
+        if (!order.ref) continue;
+        const existing = orders.find(x => x.ref === order.ref);
+        if (!existing) { orders.unshift(order); added++; }
+        else if (order.statut && order.statut !== existing.statut) {
+          existing.statut = order.statut;
+        }
       }
+      saveOrders();
+      renderTable();
+      updateStats();
+      toast('✓ ' + (rows.length-1) + ' commande(s) chargée(s)' + (added>0?' — '+added+' nouvelle(s)':''));
     })
     .catch(err => {
       btn.classList.remove('spin');
-      toast('⚠ Erreur: ' + err.message);
+      toast('⚠ Erreur chargement: ' + err.message);
     });
+}
+ 
+function processOrders(data) {
+  if (data.status === 'ok' && data.orders && data.orders.length > 0) {
+    let added = 0;
+    data.orders.forEach(o => {
+      if (!o.ref) return;
+      const existing = orders.find(x => x.ref === o.ref);
+      if (!existing) {
+        o.id = Date.now() + Math.random();
+        o.statut = o.statut || '⏳ En attente';
+        orders.unshift(o);
+        added++;
+      } else if (o.statut && o.statut !== existing.statut) {
+        existing.statut = o.statut;
+      }
+    });
+    saveOrders();
+    renderTable();
+    updateStats();
+    toast('✓ ' + data.orders.length + ' commande(s) — ' + added + ' nouvelle(s)');
+  } else {
+    toast('✓ Sheet vide ou aucune commande');
+  }
 }
  
 // Recevoir une commande depuis le site AURELE
