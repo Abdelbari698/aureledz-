@@ -16,7 +16,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Poppins',sans-serif;background:#0f0f0f;color:#e5e5e5;min-height:100vh}
-
+ 
 /* LOGIN */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--noir)}
 .login-box{background:#1a1a1a;border:.5px solid rgba(201,169,110,.25);border-radius:12px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
@@ -27,7 +27,7 @@ body{font-family:'Poppins',sans-serif;background:#0f0f0f;color:#e5e5e5;min-heigh
 .inp:focus{border-color:var(--gold)}
 .btn-gold{width:100%;padding:12px;background:var(--gold);color:var(--noir);border:none;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.2s}
 .btn-gold:hover{background:var(--gold-d)}
-
+ 
 /* LAYOUT */
 .app{display:none;min-height:100vh}
 .app.on{display:flex;flex-direction:column}
@@ -37,10 +37,10 @@ header{background:#1a1a1a;border-bottom:.5px solid rgba(201,169,110,.15);padding
 .h-badge{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#666;background:#242424;padding:4px 10px;border-radius:20px;border:.5px solid rgba(255,255,255,.08)}
 .btn-logout{background:none;border:.5px solid rgba(239,68,68,.3);color:#ef4444;padding:5px 14px;border-radius:4px;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s}
 .btn-logout:hover{background:rgba(239,68,68,.1)}
-
+ 
 /* MAIN */
 main{flex:1;padding:2rem;max-width:1400px;margin:0 auto;width:100%}
-
+ 
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
 .stat{background:#1a1a1a;border:.5px solid rgba(255,255,255,.06);border-radius:var(--r);padding:1.2rem;position:relative;overflow:hidden}
@@ -53,7 +53,7 @@ main{flex:1;padding:2rem;max-width:1400px;margin:0 auto;width:100%}
 .stat-livr .stat-n{color:var(--s-livre)} .stat-livr::before{background:var(--s-livre)}
 .stat-ann .stat-n{color:var(--s-annule)} .stat-ann::before{background:var(--s-annule)}
 .stat-tot .stat-n{color:#e5e5e5} .stat-tot::before{background:#444}
-
+ 
 /* TOOLBAR */
 .toolbar{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
 .toolbar-title{font-family:'Lora',serif;font-size:1.1rem;color:#e5e5e5;margin-right:auto;font-weight:400}
@@ -69,7 +69,7 @@ main{flex:1;padding:2rem;max-width:1400px;margin:0 auto;width:100%}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-export{background:rgba(34,197,94,.1);border:.5px solid rgba(34,197,94,.3);color:#22c55e;padding:8px 16px;border-radius:var(--r);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s}
 .btn-export:hover{background:rgba(34,197,94,.15)}
-
+ 
 /* TABLE */
 .table-wrap{background:#1a1a1a;border:.5px solid rgba(255,255,255,.06);border-radius:var(--r);overflow:hidden}
 .table-wrap table{width:100%;border-collapse:collapse}
@@ -89,7 +89,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 .td-livr{font-size:.65rem;padding:2px 8px;border-radius:20px;white-space:nowrap}
 .td-livr.dom{background:rgba(99,102,241,.15);color:#818cf8}
 .td-livr.bur{background:rgba(6,182,212,.15);color:#22d3ee}
-
+ 
 /* STATUS BADGE */
 .status{display:inline-flex;align-items:center;gap:5px;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;font-weight:500;white-space:nowrap;cursor:pointer;border:none;background:none;font-family:'Poppins',sans-serif}
 .status::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -99,20 +99,20 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 .s-expedie{background:rgba(6,182,212,.12);color:var(--s-expedie)} .s-expedie::before{background:var(--s-expedie)}
 .s-livre{background:rgba(34,197,94,.12);color:var(--s-livre)} .s-livre::before{background:var(--s-livre)}
 .s-annule{background:rgba(239,68,68,.12);color:var(--s-annule)} .s-annule::before{background:var(--s-annule)}
-
+ 
 /* ACTION BTNS */
 .td-actions{display:flex;gap:5px;align-items:center}
 .act-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:.5px solid rgba(255,255,255,.08);background:none;border-radius:4px;cursor:pointer;color:#666;transition:.2s;font-size:.75rem}
 .act-btn:hover{border-color:var(--gold);color:var(--gold)}
 .act-btn.wa:hover{border-color:#3b82f6;color:#3b82f6}
 .act-btn.del:hover{border-color:#ef4444;color:#ef4444}
-
+ 
 /* EMPTY STATE */
 .empty{text-align:center;padding:4rem 2rem;color:#444}
 .empty-icon{font-size:2.5rem;margin-bottom:1rem;opacity:.3}
 .empty-txt{font-family:'Lora',serif;font-size:1rem;color:#555}
 .empty-sub{font-size:.72rem;color:#444;margin-top:.4rem}
-
+ 
 /* MODAL DETAIL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:.25s}
 .modal-bg.on{opacity:1;pointer-events:all}
@@ -129,7 +129,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 .detail-val{font-size:.8rem;color:#ccc;text-align:right;flex:1}
 .detail-val.gold{color:var(--gold);font-family:'Lora',serif;font-size:.95rem;font-weight:500}
 .detail-val.big{color:#e5e5e5;font-weight:500}
-
+ 
 /* STATUS SELECTOR in modal */
 .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:1rem 0}
 .status-opt{padding:8px 4px;border-radius:4px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-align:center;border:.5px solid rgba(255,255,255,.08);background:none;color:#666;font-family:'Poppins',sans-serif;transition:.2s}
@@ -141,20 +141,20 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 .status-opt.sexp.active{background:rgba(6,182,212,.15);border-color:var(--s-expedie);color:var(--s-expedie)}
 .status-opt.sliv.active{background:rgba(34,197,94,.15);border-color:var(--s-livre);color:var(--s-livre)}
 .status-opt.sann.active{background:rgba(239,68,68,.15);border-color:var(--s-annule);color:var(--s-annule)}
-
+ 
 .modal-actions{display:flex;gap:.7rem;margin-top:1.2rem}
 .btn-call{flex:1;padding:10px;background:#3b82f6;color:#fff;border:none;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:7px}
 .btn-call:hover{background:#2563eb;transform:translateY(-1px)}
 .btn-save{flex:1;padding:10px;background:var(--gold);color:var(--noir);border:none;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.2s}
 .btn-save:hover{background:var(--gold-d)}
-
+ 
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a1a1a;border:.5px solid var(--gold);color:var(--gold);padding:10px 18px;border-radius:var(--r);font-size:.72rem;z-index:2000;transform:translateY(20px);opacity:0;transition:.3s;pointer-events:none;max-width:260px}
 .toast.on{transform:translateY(0);opacity:1}
-
+ 
 /* NOTIFICATION */
 .notif-badge{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;width:16px;height:16px;border-radius:50%;font-size:.55rem;display:flex;align-items:center;justify-content:center;font-weight:700}
-
+ 
 /* MOBILE */
 @media(max-width:768px){
   main{padding:1rem}
@@ -163,7 +163,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
   .stats{grid-template-columns:repeat(2,1fr)}
   header{padding:0 1rem}
 }
-
+ 
 /* SHEET CONFIG */
 .config-box{background:#1a1a1a;border:.5px solid rgba(201,169,110,.2);border-radius:var(--r);padding:1.4rem;margin-bottom:1.5rem}
 .config-box h3{font-family:'Lora',serif;font-size:.95rem;color:var(--gold);font-weight:400;margin-bottom:1rem}
@@ -175,9 +175,9 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
 </style>
 </head>
 <body>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <!-- LOGIN -->
 <div class="login-wrap" id="login-wrap">
   <div class="login-box">
@@ -188,7 +188,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
     <button class="btn-gold" onclick="doLogin()">Connexion</button>
   </div>
 </div>
-
+ 
 <!-- APP -->
 <div class="app" id="app">
   <header>
@@ -201,7 +201,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
       <button class="btn-logout" onclick="logout()">Déconnexion</button>
     </div>
   </header>
-
+ 
   <main>
     <!-- CONFIG -->
     <div class="config-box" id="config-box">
@@ -216,7 +216,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
       </div>
       <p style="font-size:.62rem;color:#555;margin-top:.6rem">Colle l'URL de ton Google Apps Script pour charger les commandes automatiquement.</p>
     </div>
-
+ 
     <!-- STATS -->
     <div class="stats" id="stats-grid">
       <div class="stat stat-tot"><div class="stat-n" id="s-total">0</div><div class="stat-l">Total commandes</div></div>
@@ -226,7 +226,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
       <div class="stat stat-ann"><div class="stat-n" id="s-annule">0</div><div class="stat-l">Annulées</div></div>
       <div class="stat stat-rev"><div class="stat-n" id="s-revenu">0</div><div class="stat-l">Revenu total DZD</div></div>
     </div>
-
+ 
     <!-- TOOLBAR -->
     <div class="toolbar">
       <div class="toolbar-title">Commandes</div>
@@ -254,7 +254,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
       </button>
       <button class="btn-export" onclick="exportCSV()">📊 Exporter CSV</button>
     </div>
-
+ 
     <!-- TABLE -->
     <div class="table-wrap">
       <table>
@@ -281,7 +281,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
     </div>
   </main>
 </div>
-
+ 
 <!-- MODAL DETAIL -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
@@ -312,7 +312,7 @@ td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
     </div>
   </div>
 </div>
-
+ 
 <script>
 // ══════════════════════════════════════════
 // CONFIG & DATA
@@ -325,7 +325,7 @@ let currentOrder = null;
 let currentStatus = '';
 let sortCol = 'date';
 let sortDir = -1;
-
+ 
 // ══════════════════════════════════════════
 // AUTH
 // ══════════════════════════════════════════
@@ -341,13 +341,13 @@ function doLogin() {
     setTimeout(() => e.style.display='none', 3000);
   }
 }
-
+ 
 function logout() {
   document.getElementById('login-wrap').style.display = 'flex';
   document.getElementById('app').classList.remove('on');
   document.getElementById('pwd').value = '';
 }
-
+ 
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
@@ -355,13 +355,18 @@ function init() {
   document.getElementById('h-date').textContent = new Date().toLocaleDateString('fr-DZ', {weekday:'short',day:'numeric',month:'short'});
   document.getElementById('sheets-url').value = SHEETS_URL;
   document.getElementById('wa-num').value = WA_NUM;
-  // Ajouter données démo si vide
-  if (orders.length === 0) addDemoOrders();
+  /* Nettoyer les anciennes données démo si elles existent */
+  const demoRefs = ['AUR-X7K2M','AUR-P9L4R','AUR-M3T8N','AUR-Q2W5Y','AUR-H6B1C'];
+  const hadDemos = orders.some(o => demoRefs.includes(o.ref));
+  if (hadDemos) {
+    orders = orders.filter(o => !demoRefs.includes(o.ref));
+    saveOrders();
+  }
   renderTable();
   updateStats();
   setInterval(() => { if (SHEETS_URL) loadOrders(); }, 60000);
 }
-
+ 
 function saveConfig() {
   SHEETS_URL = document.getElementById('sheets-url').value.trim();
   WA_NUM = document.getElementById('wa-num').value.trim();
@@ -370,7 +375,7 @@ function saveConfig() {
   toast('✓ Configuration sauvegardée');
   if (SHEETS_URL) loadOrders();
 }
-
+ 
 // ══════════════════════════════════════════
 // LOAD FROM GOOGLE SHEETS
 // ══════════════════════════════════════════
@@ -382,14 +387,14 @@ function loadOrders() {
     .then(() => { btn.classList.remove('spin'); toast('✓ Données actualisées'); })
     .catch(() => { btn.classList.remove('spin'); toast('⚠ Connexion en cours...'); });
 }
-
+ 
 // Recevoir une commande depuis le site AURELE
 window.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'new_order') {
     addOrder(e.data.order);
   }
 });
-
+ 
 function addOrder(o) {
   const existing = orders.find(x => x.ref === o.ref);
   if (!existing) {
@@ -403,26 +408,16 @@ function addOrder(o) {
     toast('🔔 Nouvelle commande: ' + o.ref);
   }
 }
-
+ 
 function saveOrders() {
   localStorage.setItem('aurele_orders', JSON.stringify(orders));
 }
-
+ 
 // ══════════════════════════════════════════
 // DEMO DATA
 // ══════════════════════════════════════════
-function addDemoOrders() {
-  const demos = [
-    {ref:'AUR-X7K2M',date:'09/06/2026 14:32',produit:"Rose d'Orient EDP",produit_ar:'وردة الشرق',prix_produit:3200,frais_livraison:400,total:3600,nom:'Fatima Zohra',telephone:'0551234567',wilaya:'16 - Alger',adresse:'Rue Didouche Mourad, Ben Aknoun',mode_livraison:'À domicile',message:'',collection:'Femme',categorie:'Parfum',statut:'⏳ En attente'},
-    {ref:'AUR-P9L4R',date:'09/06/2026 11:15',produit:'Chronographe Elite',produit_ar:'ساعة كرونوغراف',prix_produit:7800,frais_livraison:400,total:8200,nom:'Karim Benali',telephone:'0661234567',wilaya:'19 - Sétif',adresse:'',mode_livraison:'Au bureau',message:'Livraison urgente svp',collection:'Homme',categorie:'Montre',statut:'✅ Confirmée'},
-    {ref:'AUR-M3T8N',date:'08/06/2026 16:45',produit:'Pochette Velours',produit_ar:'حقيبة المخمل',prix_produit:5500,frais_livraison:350,total:5850,nom:'Amira Hadj',telephone:'0771234567',wilaya:'25 - Constantine',adresse:'Cité des Palmiers, Bt 3',mode_livraison:'À domicile',message:'',collection:'Femme',categorie:'Sac',statut:'📦 En préparation'},
-    {ref:'AUR-Q2W5Y',date:'07/06/2026 09:20',produit:'Oud Sombre',produit_ar:'عود الليل',prix_produit:4500,frais_livraison:350,total:4850,nom:'Youcef Mansouri',telephone:'0551987654',wilaya:'06 - Béjaïa',adresse:'',mode_livraison:'Au bureau',message:'',collection:'Homme',categorie:'Parfum',statut:'🚚 Expédiée'},
-    {ref:'AUR-H6B1C',date:'06/06/2026 18:30',produit:"Jasmin d'Alger",produit_ar:'ياسمين الجزائر',prix_produit:2400,frais_livraison:200,total:2600,nom:'Nadia Khelil',telephone:'0661876543',wilaya:'19 - Sétif',adresse:'Rue de la Paix, Ain Arnat',mode_livraison:'À domicile',message:'Cadeau, bien emballer',collection:'Femme',categorie:'Parfum',statut:'🎉 Livrée'},
-  ];
-  demos.forEach(d => { d.id = Date.now() + Math.random(); orders.push(d); });
-  saveOrders();
-}
-
+/* Pas de données de démonstration */
+ 
 // ══════════════════════════════════════════
 // RENDER TABLE
 // ══════════════════════════════════════════
@@ -447,7 +442,7 @@ function getFiltered() {
   });
   return data;
 }
-
+ 
 function statusClass(s) {
   if (!s) return 's-attente';
   if (s.includes('attente')) return 's-attente';
@@ -458,7 +453,7 @@ function statusClass(s) {
   if (s.includes('Annul')) return 's-annule';
   return 's-attente';
 }
-
+ 
 function renderTable() {
   const data = getFiltered();
   const tbody = document.getElementById('tbody');
@@ -497,7 +492,7 @@ function renderTable() {
     </tr>
   `).join('');
 }
-
+ 
 // ══════════════════════════════════════════
 // STATS
 // ══════════════════════════════════════════
@@ -513,7 +508,7 @@ function updateStats() {
   const att = o.filter(x=>!x.statut||x.statut.includes('attente')).length;
   document.getElementById('notif-count').textContent = att + ' en attente';
 }
-
+ 
 // ══════════════════════════════════════════
 // SORT
 // ══════════════════════════════════════════
@@ -522,7 +517,7 @@ function sortBy(col) {
   else { sortCol = col; sortDir = -1; }
   renderTable();
 }
-
+ 
 // ══════════════════════════════════════════
 // MODAL
 // ══════════════════════════════════════════
@@ -565,19 +560,19 @@ function openModal(ref) {
   document.getElementById('modal-bg').classList.add('on');
   document.body.style.overflow = 'hidden';
 }
-
+ 
 function closeModal() {
   document.getElementById('modal-bg').classList.remove('on');
   document.body.style.overflow = '';
   currentOrder = null;
 }
-
+ 
 function setStatus(s, btn) {
   currentStatus = s;
   document.querySelectorAll('.status-opt').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
-
+ 
 function saveStatus() {
   if (!currentOrder) return;
   const o = orders.find(x => x.ref === currentOrder.ref);
@@ -590,7 +585,7 @@ function saveStatus() {
     closeModal();
   }
 }
-
+ 
 // ══════════════════════════════════════════
 // WHATSAPP NOTIFICATION
 // ══════════════════════════════════════════
@@ -606,7 +601,7 @@ function notifyWA(o) {
   );
   window.open('https://wa.me/'+WA_NUM+'?text='+msg, '_blank');
 }
-
+ 
 function callClient(phone) {
   if (!phone) { toast('Numéro introuvable'); return; }
   /* Nettoyer le numéro: enlever espaces, tirets */
@@ -617,7 +612,7 @@ function callClient(phone) {
   if (num.startsWith('213') && !num.startsWith('+')) num = '+' + num;
   window.location.href = 'tel:' + num;
 }
-
+ 
 // ══════════════════════════════════════════
 // DELETE
 // ══════════════════════════════════════════
@@ -629,7 +624,7 @@ function deleteOrder(ref) {
   updateStats();
   toast('Commande supprimée');
 }
-
+ 
 // ══════════════════════════════════════════
 // EXPORT CSV
 // ══════════════════════════════════════════
@@ -646,7 +641,7 @@ function exportCSV() {
   a.click();
   toast('✓ Export CSV téléchargé');
 }
-
+ 
 // ══════════════════════════════════════════
 // TOAST
 // ══════════════════════════════════════════
@@ -655,7 +650,7 @@ function toast(msg) {
   t.textContent = msg; t.classList.add('on');
   setTimeout(() => t.classList.remove('on'), 3000);
 }
-
+ 
 // ENTER key
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
