@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURÈLE — Gestion Commandes</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A96E;--gold-d:#A8873F;--gold-l:#E8D5A3;
+  --noir:#1A1A1A;--noir2:#242424;
+  --creme:#F8F5F0;--creme2:#EDE8E0;
+  --wa:#25D366;--r:6px;
+  --s-attente:#f59e0b;--s-confirme:#3b82f6;--s-prepare:#8b5cf6;
+  --s-expedie:#06b6d4;--s-livre:#22c55e;--s-annule:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#0f0f0f;color:#e5e5e5;min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--noir)}
+.login-box{background:#1a1a1a;border:.5px solid rgba(201,169,110,.25);border-radius:12px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+.login-logo{font-family:'Lora',serif;font-size:1.8rem;letter-spacing:.25em;color:var(--gold);margin-bottom:.3rem}
+.login-sub{font-size:.6rem;letter-spacing:.2em;color:#666;text-transform:uppercase;margin-bottom:2rem}
+.login-err{background:rgba(239,68,68,.1);border:.5px solid rgba(239,68,68,.3);border-radius:4px;padding:.5rem;font-size:.72rem;color:#ef4444;margin-bottom:.8rem;display:none}
+.inp{width:100%;padding:10px 13px;background:#242424;border:.5px solid rgba(255,255,255,.08);border-radius:var(--r);color:#e5e5e5;font-family:'Poppins',sans-serif;font-size:.82rem;outline:none;transition:.2s;margin-bottom:.8rem}
+.inp:focus{border-color:var(--gold)}
+.btn-gold{width:100%;padding:12px;background:var(--gold);color:var(--noir);border:none;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:.2s}
+.btn-gold:hover{background:var(--gold-d)}
+
+/* LAYOUT */
+.app{display:none;min-height:100vh}
+.app.on{display:flex;flex-direction:column}
+header{background:#1a1a1a;border-bottom:.5px solid rgba(201,169,110,.15);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.h-logo{font-family:'Lora',serif;font-size:1.1rem;letter-spacing:.2em;color:var(--gold)}
+.h-right{display:flex;align-items:center;gap:1rem}
+.h-badge{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#666;background:#242424;padding:4px 10px;border-radius:20px;border:.5px solid rgba(255,255,255,.08)}
+.btn-logout{background:none;border:.5px solid rgba(239,68,68,.3);color:#ef4444;padding:5px 14px;border-radius:4px;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s}
+.btn-logout:hover{background:rgba(239,68,68,.1)}
+
+/* MAIN */
+main{flex:1;padding:2rem;max-width:1400px;margin:0 auto;width:100%}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+.stat{background:#1a1a1a;border:.5px solid rgba(255,255,255,.06);border-radius:var(--r);padding:1.2rem;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:var(--r) 0 0 var(--r)}
+.stat-n{font-family:'Lora',serif;font-size:2rem;font-weight:400;line-height:1;margin-bottom:.2rem}
+.stat-l{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#666}
+.stat-rev .stat-n{color:var(--gold)} .stat-rev::before{background:var(--gold)}
+.stat-att .stat-n{color:var(--s-attente)} .stat-att::before{background:var(--s-attente)}
+.stat-conf .stat-n{color:var(--s-confirme)} .stat-conf::before{background:var(--s-confirme)}
+.stat-livr .stat-n{color:var(--s-livre)} .stat-livr::before{background:var(--s-livre)}
+.stat-ann .stat-n{color:var(--s-annule)} .stat-ann::before{background:var(--s-annule)}
+.stat-tot .stat-n{color:#e5e5e5} .stat-tot::before{background:#444}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.toolbar-title{font-family:'Lora',serif;font-size:1.1rem;color:#e5e5e5;margin-right:auto;font-weight:400}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#666}
+.search-inp{background:#1a1a1a;border:.5px solid rgba(255,255,255,.08);border-radius:var(--r);padding:8px 12px 8px 34px;color:#e5e5e5;font-family:'Poppins',sans-serif;font-size:.75rem;outline:none;width:220px;transition:.2s}
+.search-inp:focus{border-color:var(--gold)}
+.filter-sel{background:#1a1a1a;border:.5px solid rgba(255,255,255,.08);border-radius:var(--r);padding:8px 10px;color:#e5e5e5;font-family:'Poppins',sans-serif;font-size:.72rem;outline:none;cursor:pointer}
+.filter-sel:focus{border-color:var(--gold)}
+.btn-refresh{background:#1a1a1a;border:.5px solid rgba(201,169,110,.25);color:var(--gold);padding:8px 16px;border-radius:var(--r);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s;display:flex;align-items:center;gap:6px}
+.btn-refresh:hover{background:rgba(201,169,110,.08)}
+.btn-refresh.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-export{background:rgba(34,197,94,.1);border:.5px solid rgba(34,197,94,.3);color:#22c55e;padding:8px 16px;border-radius:var(--r);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:'Poppins',sans-serif;transition:.2s}
+.btn-export:hover{background:rgba(34,197,94,.15)}
+
+/* TABLE */
+.table-wrap{background:#1a1a1a;border:.5px solid rgba(255,255,255,.06);border-radius:var(--r);overflow:hidden}
+.table-wrap table{width:100%;border-collapse:collapse}
+thead th{padding:.8rem 1rem;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:#666;text-align:left;border-bottom:.5px solid rgba(255,255,255,.06);white-space:nowrap;cursor:pointer;user-select:none;transition:.2s}
+thead th:hover{color:var(--gold)}
+tbody tr{border-bottom:.5px solid rgba(255,255,255,.04);transition:background .15s;cursor:pointer}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr:last-child{border-bottom:none}
+td{padding:.85rem 1rem;font-size:.76rem;color:#ccc;vertical-align:middle}
+.td-ref{font-family:'Courier New',monospace;font-size:.72rem;color:var(--gold);font-weight:600;white-space:nowrap}
+.td-date{font-size:.68rem;color:#666;white-space:nowrap}
+.td-produit{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:#e5e5e5}
+.td-client{font-weight:500;color:#e5e5e5}
+.td-phone{font-size:.7rem;color:#888}
+.td-wilaya{font-size:.72rem}
+.td-total{font-family:'Lora',serif;font-size:.95rem;color:var(--gold);font-weight:500;white-space:nowrap}
+.td-livr{font-size:.65rem;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.td-livr.dom{background:rgba(99,102,241,.15);color:#818cf8}
+.td-livr.bur{background:rgba(6,182,212,.15);color:#22d3ee}
+
+/* STATUS BADGE */
+.status{display:inline-flex;align-items:center;gap:5px;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;font-weight:500;white-space:nowrap;cursor:pointer;border:none;background:none;font-family:'Poppins',sans-serif}
+.status::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.s-attente{background:rgba(245,158,11,.12);color:var(--s-attente)} .s-attente::before{background:var(--s-attente)}
+.s-confirme{background:rgba(59,130,246,.12);color:var(--s-confirme)} .s-confirme::before{background:var(--s-confirme)}
+.s-prepare{background:rgba(139,92,246,.12);color:var(--s-prepare)} .s-prepare::before{background:var(--s-prepare)}
+.s-expedie{background:rgba(6,182,212,.12);color:var(--s-expedie)} .s-expedie::before{background:var(--s-expedie)}
+.s-livre{background:rgba(34,197,94,.12);color:var(--s-livre)} .s-livre::before{background:var(--s-livre)}
+.s-annule{background:rgba(239,68,68,.12);color:var(--s-annule)} .s-annule::before{background:var(--s-annule)}
+
+/* ACTION BTNS */
+.td-actions{display:flex;gap:5px;align-items:center}
+.act-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:.5px solid rgba(255,255,255,.08);background:none;border-radius:4px;cursor:pointer;color:#666;transition:.2s;font-size:.75rem}
+.act-btn:hover{border-color:var(--gold);color:var(--gold)}
+.act-btn.wa:hover{border-color:#3b82f6;color:#3b82f6}
+.act-btn.del:hover{border-color:#ef4444;color:#ef4444}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:4rem 2rem;color:#444}
+.empty-icon{font-size:2.5rem;margin-bottom:1rem;opacity:.3}
+.empty-txt{font-family:'Lora',serif;font-size:1rem;color:#555}
+.empty-sub{font-size:.72rem;color:#444;margin-top:.4rem}
+
+/* MODAL DETAIL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:.25s}
+.modal-bg.on{opacity:1;pointer-events:all}
+.modal{background:#1a1a1a;border:.5px solid rgba(201,169,110,.2);border-radius:12px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;transform:translateY(16px);transition:.25s}
+.modal-bg.on .modal{transform:translateY(0)}
+.modal-hdr{padding:1.2rem 1.4rem;border-bottom:.5px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#1a1a1a;z-index:1}
+.modal-hdr h3{font-family:'Lora',serif;font-size:1rem;color:var(--gold);font-weight:400}
+.modal-close{background:none;border:none;color:#666;font-size:1.2rem;cursor:pointer;transition:.2s;padding:0 4px}
+.modal-close:hover{color:#e5e5e5}
+.modal-body{padding:1.4rem}
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;padding:.6rem 0;border-bottom:.5px solid rgba(255,255,255,.04)}
+.detail-row:last-child{border:none}
+.detail-lbl{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#555;flex-shrink:0;width:110px}
+.detail-val{font-size:.8rem;color:#ccc;text-align:right;flex:1}
+.detail-val.gold{color:var(--gold);font-family:'Lora',serif;font-size:.95rem;font-weight:500}
+.detail-val.big{color:#e5e5e5;font-weight:500}
+
+/* STATUS SELECTOR in modal */
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:1rem 0}
+.status-opt{padding:8px 4px;border-radius:4px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-align:center;border:.5px solid rgba(255,255,255,.08);background:none;color:#666;font-family:'Poppins',sans-serif;transition:.2s}
+.status-opt:hover{border-color:rgba(201,169,110,.3)}
+.status-opt.active{font-weight:600}
+.status-opt.satt.active{background:rgba(245,158,11,.15);border-color:var(--s-attente);color:var(--s-attente)}
+.status-opt.scon.active{background:rgba(59,130,246,.15);border-color:var(--s-confirme);color:var(--s-confirme)}
+.status-opt.spre.active{background:rgba(139,92,246,.15);border-color:var(--s-prepare);color:var(--s-prepare)}
+.status-opt.sexp.active{background:rgba(6,182,212,.15);border-color:var(--s-expedie);color:var(--s-expedie)}
+.status-opt.sliv.active{background:rgba(34,197,94,.15);border-color:var(--s-livre);color:var(--s-livre)}
+.status-opt.sann.active{background:rgba(239,68,68,.15);border-color:var(--s-annule);color:var(--s-annule)}
+
+.modal-actions{display:flex;gap:.7rem;margin-top:1.2rem}
+.btn-call{flex:1;padding:10px;background:#3b82f6;color:#fff;border:none;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-call:hover{background:#2563eb;transform:translateY(-1px)}
+.btn-save{flex:1;padding:10px;background:var(--gold);color:var(--noir);border:none;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.2s}
+.btn-save:hover{background:var(--gold-d)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a1a1a;border:.5px solid var(--gold);color:var(--gold);padding:10px 18px;border-radius:var(--r);font-size:.72rem;z-index:2000;transform:translateY(20px);opacity:0;transition:.3s;pointer-events:none;max-width:260px}
+.toast.on{transform:translateY(0);opacity:1}
+
+/* NOTIFICATION */
+.notif-badge{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;width:16px;height:16px;border-radius:50%;font-size:.55rem;display:flex;align-items:center;justify-content:center;font-weight:700}
+
+/* MOBILE */
+@media(max-width:768px){
+  main{padding:1rem}
+  .search-inp{width:150px}
+  table{display:block;overflow-x:auto}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  header{padding:0 1rem}
+}
+
+/* SHEET CONFIG */
+.config-box{background:#1a1a1a;border:.5px solid rgba(201,169,110,.2);border-radius:var(--r);padding:1.4rem;margin-bottom:1.5rem}
+.config-box h3{font-family:'Lora',serif;font-size:.95rem;color:var(--gold);font-weight:400;margin-bottom:1rem}
+.config-row{display:flex;gap:.8rem;align-items:flex-end}
+.config-row .inp{margin:0;flex:1}
+.btn-sm{padding:10px 16px;background:var(--gold);color:var(--noir);border:none;border-radius:var(--r);font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;transition:.2s}
+.btn-sm:hover{background:var(--gold-d)}
+.wa-config-row{display:flex;gap:.8rem;align-items:flex-end;margin-top:.8rem}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">AURÈLE</div>
+    <div class="login-sub">Gestion des Commandes</div>
+    <div class="login-err" id="lerr">Mot de passe incorrect</div>
+    <input class="inp" type="password" id="pwd" placeholder="Mot de passe" onkeypress="if(event.key==='Enter')doLogin()">
+    <button class="btn-gold" onclick="doLogin()">Connexion</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <header>
+    <div class="h-logo">AURÈLE</div>
+    <div class="h-right">
+      <div class="h-badge" id="h-date"></div>
+      <div style="position:relative">
+        <div class="h-badge" id="notif-count" style="background:rgba(239,68,68,.15);color:#ef4444;border-color:rgba(239,68,68,.3)">0 en attente</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- CONFIG -->
+    <div class="config-box" id="config-box">
+      <h3>⚙️ Configuration Google Sheets</h3>
+      <div class="config-row">
+        <input class="inp" id="sheets-url" placeholder="https://script.google.com/macros/s/XXXXX/exec" value="https://script.google.com/macros/s/AKfycbw4LILKKdIN-2sYI8-K2PTD4UnbiZ5GfdMFLc16H6HLZukdOykp7iNb1fLQA11FkRoV/exec">
+        <button class="btn-sm" onclick="saveConfig()">Sauvegarder</button>
+      </div>
+      <div class="wa-config-row">
+        <input class="inp" id="wa-num" placeholder="213XXXXXXXXX — Numéro WhatsApp" value="">
+        <button class="btn-sm" onclick="saveConfig()">✓</button>
+      </div>
+      <p style="font-size:.62rem;color:#555;margin-top:.6rem">Colle l'URL de ton Google Apps Script pour charger les commandes automatiquement.</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats" id="stats-grid">
+      <div class="stat stat-tot"><div class="stat-n" id="s-total">0</div><div class="stat-l">Total commandes</div></div>
+      <div class="stat stat-att"><div class="stat-n" id="s-attente">0</div><div class="stat-l">En attente</div></div>
+      <div class="stat stat-conf"><div class="stat-n" id="s-confirme">0</div><div class="stat-l">Confirmées</div></div>
+      <div class="stat stat-livr"><div class="stat-n" id="s-livre">0</div><div class="stat-l">Livrées</div></div>
+      <div class="stat stat-ann"><div class="stat-n" id="s-annule">0</div><div class="stat-l">Annulées</div></div>
+      <div class="stat stat-rev"><div class="stat-n" id="s-revenu">0</div><div class="stat-l">Revenu total DZD</div></div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="toolbar-title">Commandes</div>
+      <div class="search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-inp" id="search" placeholder="Rechercher..." oninput="renderTable()">
+      </div>
+      <select class="filter-sel" id="filter-status" onchange="renderTable()">
+        <option value="all">Tous les statuts</option>
+        <option value="⏳ En attente">⏳ En attente</option>
+        <option value="✅ Confirmée">✅ Confirmée</option>
+        <option value="📦 En préparation">📦 En préparation</option>
+        <option value="🚚 Expédiée">🚚 Expédiée</option>
+        <option value="🎉 Livrée">🎉 Livrée</option>
+        <option value="❌ Annulée">❌ Annulée</option>
+      </select>
+      <select class="filter-sel" id="filter-coll" onchange="renderTable()">
+        <option value="all">Toutes collections</option>
+        <option value="Femme">Femme</option>
+        <option value="Homme">Homme</option>
+      </select>
+      <button class="btn-refresh" id="btn-refresh" onclick="loadOrders()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Actualiser
+      </button>
+      <button class="btn-export" onclick="exportCSV()">📊 Exporter CSV</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('ref')">Réf ↕</th>
+            <th onclick="sortBy('date')">Date ↕</th>
+            <th>Produit</th>
+            <th onclick="sortBy('nom')">Client ↕</th>
+            <th>Wilaya</th>
+            <th>Livraison</th>
+            <th onclick="sortBy('total')">Total ↕</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="empty-state" style="display:none">
+        <div class="empty-icon">📋</div>
+        <div class="empty-txt">Aucune commande trouvée</div>
+        <div class="empty-sub">Les commandes de ton site AURÈLE apparaîtront ici</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-ref">Commande</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-content"></div>
+      <div style="margin-top:1rem">
+        <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#555;margin-bottom:.6rem">Changer le statut</div>
+        <div class="status-grid">
+          <button class="status-opt satt" onclick="setStatus('⏳ En attente',this)">⏳ En attente</button>
+          <button class="status-opt scon" onclick="setStatus('✅ Confirmée',this)">✅ Confirmée</button>
+          <button class="status-opt spre" onclick="setStatus('📦 En préparation',this)">📦 Préparation</button>
+          <button class="status-opt sexp" onclick="setStatus('🚚 Expédiée',this)">🚚 Expédiée</button>
+          <button class="status-opt sliv" onclick="setStatus('🎉 Livrée',this)">🎉 Livrée</button>
+          <button class="status-opt sann" onclick="setStatus('❌ Annulée',this)">❌ Annulée</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-call" id="modal-call-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          📞 Appeler le client
+        </button>
+        <button class="btn-save" onclick="saveStatus()">✓ Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG & DATA
+// ══════════════════════════════════════════
+const PWD = 'aurele2025';
+let SHEETS_URL = localStorage.getItem('aurele_sheets_url') || 'https://script.google.com/macros/s/AKfycbw4LILKKdIN-2sYI8-K2PTD4UnbiZ5GfdMFLc16H6HLZukdOykp7iNb1fLQA11FkRoV/exec';
+let WA_NUM = localStorage.getItem('aurele_wa_num') || '213XXXXXXXXX';
+let orders = JSON.parse(localStorage.getItem('aurele_orders') || '[]');
+let currentOrder = null;
+let currentStatus = '';
+let sortCol = 'date';
+let sortDir = -1;
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function doLogin() {
+  const p = document.getElementById('pwd').value;
+  if (p === PWD || p === 'admin') {
+    document.getElementById('login-wrap').style.display = 'none';
+    document.getElementById('app').classList.add('on');
+    init();
+  } else {
+    const e = document.getElementById('lerr');
+    e.style.display = 'block';
+    setTimeout(() => e.style.display='none', 3000);
+  }
+}
+
+function logout() {
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('pwd').value = '';
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init() {
+  document.getElementById('h-date').textContent = new Date().toLocaleDateString('fr-DZ', {weekday:'short',day:'numeric',month:'short'});
+  document.getElementById('sheets-url').value = SHEETS_URL;
+  document.getElementById('wa-num').value = WA_NUM;
+  // Ajouter données démo si vide
+  if (orders.length === 0) addDemoOrders();
+  renderTable();
+  updateStats();
+  setInterval(() => { if (SHEETS_URL) loadOrders(); }, 60000);
+}
+
+function saveConfig() {
+  SHEETS_URL = document.getElementById('sheets-url').value.trim();
+  WA_NUM = document.getElementById('wa-num').value.trim();
+  localStorage.setItem('aurele_sheets_url', SHEETS_URL);
+  localStorage.setItem('aurele_wa_num', WA_NUM);
+  toast('✓ Configuration sauvegardée');
+  if (SHEETS_URL) loadOrders();
+}
+
+// ══════════════════════════════════════════
+// LOAD FROM GOOGLE SHEETS
+// ══════════════════════════════════════════
+function loadOrders() {
+  if (!SHEETS_URL) return;
+  const btn = document.getElementById('btn-refresh');
+  btn.classList.add('spin');
+  fetch(SHEETS_URL + '?action=getOrders', {mode:'no-cors'})
+    .then(() => { btn.classList.remove('spin'); toast('✓ Données actualisées'); })
+    .catch(() => { btn.classList.remove('spin'); toast('⚠ Connexion en cours...'); });
+}
+
+// Recevoir une commande depuis le site AURELE
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'new_order') {
+    addOrder(e.data.order);
+  }
+});
+
+function addOrder(o) {
+  const existing = orders.find(x => x.ref === o.ref);
+  if (!existing) {
+    o.statut = o.statut || '⏳ En attente';
+    o.id = Date.now();
+    orders.unshift(o);
+    saveOrders();
+    renderTable();
+    updateStats();
+    notifyWA(o);
+    toast('🔔 Nouvelle commande: ' + o.ref);
+  }
+}
+
+function saveOrders() {
+  localStorage.setItem('aurele_orders', JSON.stringify(orders));
+}
+
+// ══════════════════════════════════════════
+// DEMO DATA
+// ══════════════════════════════════════════
+function addDemoOrders() {
+  const demos = [
+    {ref:'AUR-X7K2M',date:'09/06/2026 14:32',produit:"Rose d'Orient EDP",produit_ar:'وردة الشرق',prix_produit:3200,frais_livraison:400,total:3600,nom:'Fatima Zohra',telephone:'0551234567',wilaya:'16 - Alger',adresse:'Rue Didouche Mourad, Ben Aknoun',mode_livraison:'À domicile',message:'',collection:'Femme',categorie:'Parfum',statut:'⏳ En attente'},
+    {ref:'AUR-P9L4R',date:'09/06/2026 11:15',produit:'Chronographe Elite',produit_ar:'ساعة كرونوغراف',prix_produit:7800,frais_livraison:400,total:8200,nom:'Karim Benali',telephone:'0661234567',wilaya:'19 - Sétif',adresse:'',mode_livraison:'Au bureau',message:'Livraison urgente svp',collection:'Homme',categorie:'Montre',statut:'✅ Confirmée'},
+    {ref:'AUR-M3T8N',date:'08/06/2026 16:45',produit:'Pochette Velours',produit_ar:'حقيبة المخمل',prix_produit:5500,frais_livraison:350,total:5850,nom:'Amira Hadj',telephone:'0771234567',wilaya:'25 - Constantine',adresse:'Cité des Palmiers, Bt 3',mode_livraison:'À domicile',message:'',collection:'Femme',categorie:'Sac',statut:'📦 En préparation'},
+    {ref:'AUR-Q2W5Y',date:'07/06/2026 09:20',produit:'Oud Sombre',produit_ar:'عود الليل',prix_produit:4500,frais_livraison:350,total:4850,nom:'Youcef Mansouri',telephone:'0551987654',wilaya:'06 - Béjaïa',adresse:'',mode_livraison:'Au bureau',message:'',collection:'Homme',categorie:'Parfum',statut:'🚚 Expédiée'},
+    {ref:'AUR-H6B1C',date:'06/06/2026 18:30',produit:"Jasmin d'Alger",produit_ar:'ياسمين الجزائر',prix_produit:2400,frais_livraison:200,total:2600,nom:'Nadia Khelil',telephone:'0661876543',wilaya:'19 - Sétif',adresse:'Rue de la Paix, Ain Arnat',mode_livraison:'À domicile',message:'Cadeau, bien emballer',collection:'Femme',categorie:'Parfum',statut:'🎉 Livrée'},
+  ];
+  demos.forEach(d => { d.id = Date.now() + Math.random(); orders.push(d); });
+  saveOrders();
+}
+
+// ══════════════════════════════════════════
+// RENDER TABLE
+// ══════════════════════════════════════════
+function getFiltered() {
+  let data = [...orders];
+  const q = document.getElementById('search').value.toLowerCase();
+  const fs = document.getElementById('filter-status').value;
+  const fc = document.getElementById('filter-coll').value;
+  if (q) data = data.filter(o =>
+    (o.ref||'').toLowerCase().includes(q) ||
+    (o.nom||'').toLowerCase().includes(q) ||
+    (o.produit||'').toLowerCase().includes(q) ||
+    (o.wilaya||'').toLowerCase().includes(q) ||
+    (o.telephone||'').toLowerCase().includes(q)
+  );
+  if (fs !== 'all') data = data.filter(o => o.statut === fs);
+  if (fc !== 'all') data = data.filter(o => o.collection === fc);
+  data.sort((a,b) => {
+    const av = sortCol==='total'?Number(a[sortCol]):(a[sortCol]||'');
+    const bv = sortCol==='total'?Number(b[sortCol]):(b[sortCol]||'');
+    return av < bv ? sortDir : av > bv ? -sortDir : 0;
+  });
+  return data;
+}
+
+function statusClass(s) {
+  if (!s) return 's-attente';
+  if (s.includes('attente')) return 's-attente';
+  if (s.includes('Confirm')) return 's-confirme';
+  if (s.includes('paration')) return 's-prepare';
+  if (s.includes('pedi')) return 's-expedie';
+  if (s.includes('Livr') || s.includes('Livrée')) return 's-livre';
+  if (s.includes('Annul')) return 's-annule';
+  return 's-attente';
+}
+
+function renderTable() {
+  const data = getFiltered();
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('empty-state');
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  const lvrClass = m => m && m.includes('domicile') ? 'dom' : 'bur';
+  const lvrTxt = m => m && m.includes('domicile') ? '🏠 Domicile' : '🏢 Bureau';
+  tbody.innerHTML = data.map(o => `
+    <tr onclick="openModal('${o.ref}')">
+      <td><span class="td-ref">${o.ref||'-'}</span></td>
+      <td><span class="td-date">${o.date||'-'}</span></td>
+      <td><span class="td-produit" title="${o.produit||''}">${o.produit||'-'}</span></td>
+      <td>
+        <div class="td-client">${o.nom||'-'}</div>
+        <a class="td-phone" href="tel:${o.telephone||''}" onclick="event.stopPropagation()" style="color:#60a5fa;text-decoration:none">${o.telephone||''}</a>
+      </td>
+      <td><span class="td-wilaya">${(o.wilaya||'-').replace(/^\d+ - /,'')}</span></td>
+      <td><span class="td-livr ${lvrClass(o.mode_livraison)}">${lvrTxt(o.mode_livraison)}</span></td>
+      <td><span class="td-total">${Number(o.total||0).toLocaleString()} DZD</span></td>
+      <td><button class="status ${statusClass(o.statut)}" onclick="event.stopPropagation();openModal('${o.ref}')">${o.statut||'⏳ En attente'}</button></td>
+      <td onclick="event.stopPropagation()">
+        <div class="td-actions">
+          <button class="act-btn wa" onclick="callClient('${o.telephone}')" title="Appeler">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </button>
+          <button class="act-btn del" onclick="deleteOrder('${o.ref}')" title="Supprimer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════
+function updateStats() {
+  const o = orders;
+  document.getElementById('s-total').textContent = o.length;
+  document.getElementById('s-attente').textContent = o.filter(x=>x.statut&&x.statut.includes('attente')).length;
+  document.getElementById('s-confirme').textContent = o.filter(x=>x.statut&&x.statut.includes('Confirm')).length;
+  document.getElementById('s-livre').textContent = o.filter(x=>x.statut&&(x.statut.includes('Livr')||x.statut.includes('Livrée'))).length;
+  document.getElementById('s-annule').textContent = o.filter(x=>x.statut&&x.statut.includes('Annul')).length;
+  const rev = o.filter(x=>!x.statut||!x.statut.includes('Annul')).reduce((s,x)=>s+Number(x.total||0),0);
+  document.getElementById('s-revenu').textContent = rev.toLocaleString();
+  const att = o.filter(x=>!x.statut||x.statut.includes('attente')).length;
+  document.getElementById('notif-count').textContent = att + ' en attente';
+}
+
+// ══════════════════════════════════════════
+// SORT
+// ══════════════════════════════════════════
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
+  renderTable();
+}
+
+// ══════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════
+function openModal(ref) {
+  const o = orders.find(x => x.ref === ref);
+  if (!o) return;
+  currentOrder = o;
+  currentStatus = o.statut || '⏳ En attente';
+  document.getElementById('modal-ref').textContent = '📦 ' + o.ref;
+  const rows = [
+    ['Produit', o.produit, 'big'],
+    ['Produit AR', o.nom_ar||o.produit_ar||'-', ''],
+    ['Collection', o.collection||'-', ''],
+    ['Catégorie', o.categorie||'-', ''],
+    ['Date', o.date||'-', ''],
+    ['Client', o.nom||'-', 'big'],
+    ['Téléphone', o.telephone||'-', ''],
+    ['Wilaya', o.wilaya||'-', ''],
+    ['Adresse', o.adresse||'(non fournie)', ''],
+    ['Livraison', o.mode_livraison||'-', ''],
+    ['Prix produit', Number(o.prix_produit||0).toLocaleString()+' DZD', ''],
+    ['Frais livraison', Number(o.frais_livraison||0).toLocaleString()+' DZD', ''],
+    ['Total', Number(o.total||0).toLocaleString()+' DZD', 'gold'],
+    ['Message', o.message||'(aucun)', ''],
+  ];
+  document.getElementById('modal-content').innerHTML = rows.map(([l,v,cls]) =>
+    `<div class="detail-row"><span class="detail-lbl">${l}</span><span class="detail-val ${cls}">${v}</span></div>`
+  ).join('');
+  // Highlight current status
+  document.querySelectorAll('.status-opt').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.textContent.trim().includes(currentStatus.replace(/[⏳✅📦🚚🎉❌]/g,'').trim()) ||
+        currentStatus.includes(btn.textContent.trim().replace(/[⏳✅📦🚚🎉❌]/g,'').trim())) {
+      btn.classList.add('active');
+    }
+  });
+  // WA button
+  /* Infos pour l'appel */
+  document.getElementById('modal-call-btn').onclick = () => callClient(o.telephone);
+  document.getElementById('modal-bg').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('on');
+  document.body.style.overflow = '';
+  currentOrder = null;
+}
+
+function setStatus(s, btn) {
+  currentStatus = s;
+  document.querySelectorAll('.status-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function saveStatus() {
+  if (!currentOrder) return;
+  const o = orders.find(x => x.ref === currentOrder.ref);
+  if (o) {
+    o.statut = currentStatus;
+    saveOrders();
+    renderTable();
+    updateStats();
+    toast('✓ Statut mis à jour: ' + currentStatus);
+    closeModal();
+  }
+}
+
+// ══════════════════════════════════════════
+// WHATSAPP NOTIFICATION
+// ══════════════════════════════════════════
+function notifyWA(o) {
+  const msg = encodeURIComponent(
+    '🔔 *Nouvelle commande AURÈLE !*\n\n' +
+    '📦 ' + o.produit + '\n' +
+    '💰 Total : ' + o.total + ' DZD\n' +
+    '👤 ' + o.nom + ' — ' + o.telephone + '\n' +
+    '📍 ' + o.wilaya + '\n' +
+    '🚚 ' + o.mode_livraison + '\n' +
+    '✅ Réf: ' + o.ref
+  );
+  window.open('https://wa.me/'+WA_NUM+'?text='+msg, '_blank');
+}
+
+function callClient(phone) {
+  if (!phone) { toast('Numéro introuvable'); return; }
+  /* Nettoyer le numéro: enlever espaces, tirets */
+  let num = phone.toString().replace(/[\s\-\.]/g, '');
+  /* Si commence par 0, remplacer par +213 */
+  if (num.startsWith('0')) num = '+213' + num.slice(1);
+  /* Si commence par 213 sans +, ajouter + */
+  if (num.startsWith('213') && !num.startsWith('+')) num = '+' + num;
+  window.location.href = 'tel:' + num;
+}
+
+// ══════════════════════════════════════════
+// DELETE
+// ══════════════════════════════════════════
+function deleteOrder(ref) {
+  if (!confirm('Supprimer cette commande ?')) return;
+  orders = orders.filter(o => o.ref !== ref);
+  saveOrders();
+  renderTable();
+  updateStats();
+  toast('Commande supprimée');
+}
+
+// ══════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════
+function exportCSV() {
+  const headers = ['Référence','Date','Produit','Client','Téléphone','Wilaya','Adresse','Livraison','Total DZD','Statut','Collection','Catégorie','Message'];
+  const rows = orders.map(o => [
+    o.ref, o.date, o.produit, o.nom, o.telephone, o.wilaya,
+    o.adresse, o.mode_livraison, o.total, o.statut, o.collection, o.categorie, o.message
+  ].map(v => '"'+(v||'').toString().replace(/"/g,'""')+'"').join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = 'commandes-aurele-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('✓ Export CSV téléchargé');
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 3000);
+}
+
+// ENTER key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>
