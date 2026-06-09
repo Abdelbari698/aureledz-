@@ -384,59 +384,86 @@ function saveConfig() {
 // LOAD FROM GOOGLE SHEETS
 // ══════════════════════════════════════════
 function loadOrders() {
-  if (!CSV_URL && !SHEETS_URL) return;
   const btn = document.getElementById('btn-refresh');
   btn.classList.add('spin');
  
-  /* Lire le CSV public directement — pas besoin de proxy */
   fetch(CSV_URL)
-    .then(r => r.text())
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
     .then(csv => {
       btn.classList.remove('spin');
-      const rows = csv.split('\n').map(r => r.split(',').map(v => v.replace(/^"|"$/g,'').trim()));
-      if (rows.length < 2) { toast('Sheet vide'); return; }
-      const headers = rows[0];
+      const rows = parseCSV(csv);
+      if (rows.length < 2) { toast('⚠ Sheet vide ou inaccessible'); return; }
+      const headers = rows[0].map(h => h.trim());
       let added = 0;
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
-        if (!row[0]) continue;
+        if (!row.length || !row[0]) continue;
         const o = {};
-        headers.forEach((h,j) => o[h] = row[j] || '');
+        headers.forEach((h,j) => o[h] = (row[j]||'').trim());
+        /* Chercher la colonne Référence avec différentes variantes */
+        const ref = o['Référence']||o['Reference']||o['RÃ©fÃ©rence']||row[0]||'';
+        if (!ref || ref === 'Référence') continue;
         const order = {
-          ref:   o['Référence']||o['Reference']||'',
+          ref, id: Date.now() + Math.random(),
           date:  o['Date']||'',
           produit: o['Produit']||'',
           produit_ar: o['Produit AR']||'',
-          prix_produit: Number(o['Prix Produit']||0),
-          frais_livraison: Number(o['Frais Livraison']||0),
+          prix_produit: Number(o['Prix Produit']||o['Prix']||0),
+          frais_livraison: Number(o['Frais Livraison']||o['Frais']||0),
           total: Number(o['Total DZD']||o['Total']||0),
-          nom: o['Nom Client']||'',
-          telephone: o['Téléphone']||o['Telephone']||'',
+          nom: o['Nom Client']||o['Nom']||'',
+          telephone: o['Téléphone']||o['Telephone']||o['Tel']||'',
           wilaya: o['Wilaya']||'',
           adresse: o['Adresse']||'',
-          mode_livraison: o['Mode Livraison']||'',
+          mode_livraison: o['Mode Livraison']||o['Livraison']||'',
           message: o['Message']||'',
           collection: o['Collection']||'',
           categorie: o['Catégorie']||o['Categorie']||'',
-          statut: o['Statut']||'⏳ En attente',
-          id: Date.now() + Math.random()
+          statut: o['Statut']||'⏳ En attente'
         };
-        if (!order.ref) continue;
         const existing = orders.find(x => x.ref === order.ref);
         if (!existing) { orders.unshift(order); added++; }
         else if (order.statut && order.statut !== existing.statut) {
           existing.statut = order.statut;
         }
       }
-      saveOrders();
-      renderTable();
-      updateStats();
-      toast('✓ ' + (rows.length-1) + ' commande(s) chargée(s)' + (added>0?' — '+added+' nouvelle(s)':''));
+      saveOrders(); renderTable(); updateStats();
+      toast('✓ ' + (rows.length-1) + ' ligne(s) — ' + added + ' nouvelle(s) commande(s)');
     })
     .catch(err => {
       btn.classList.remove('spin');
-      toast('⚠ Erreur chargement: ' + err.message);
+      toast('⚠ ' + err.message);
     });
+}
+ 
+/* Parseur CSV correct (RFC 4180) — gère les virgules dans les champs */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  /* Normaliser les fins de ligne */
+  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; } /* guillemet échappé */
+        else inQuotes = false;
+      } else field += ch;
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\n') {
+        row.push(field); field = '';
+        if (row.some(f => f !== '')) rows.push(row);
+        row = [];
+      } else field += ch;
+    }
+  }
+  if (field || row.length) { row.push(field); if (row.some(f=>f!=='')) rows.push(row); }
+  return rows;
 }
  
 function processOrders(data) {
